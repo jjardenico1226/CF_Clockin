@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crossroads Fellowship Inc. – Attendance</title>
+<style>
+  :root{
+    --bg:#cfe6fa; --card:#ffffff; --ink:#12304d; --muted:#5a7390;
+    --brand:#1f6fb8; --brand-dark:#154f86; --line:#d3e1ef; --ok:#1e8a4c; --warn:#b4540a; --err:#b3261e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;min-height:100vh}
+  header{text-align:center;padding:28px 18px 10px}
+  header h1{margin:0;font-size:clamp(1.5rem,5vw,2.4rem);letter-spacing:.08em;font-weight:800;color:var(--brand-dark)}
+  .verse{max-width:680px;margin:10px auto 0;font-style:italic;color:var(--ink);font-size:.98rem}
+  .verse b{display:block;font-style:normal;font-size:.85rem;color:var(--muted);margin-top:4px;letter-spacing:.05em}
+  main{max-width:720px;margin:18px auto 40px;padding:0 14px}
+  main.wide{max-width:1100px}
+  .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 6px 24px rgba(20,70,120,.12)}
+  h2{margin:0 0 6px;font-size:1.35rem}
+  p.sub{margin:0 0 18px;color:var(--muted)}
+  .hidden{display:none!important}
+  button,.btn{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 20px;font-weight:700;background:var(--brand);color:#fff;transition:.15s}
+  button:hover{background:var(--brand-dark)}
+  button.secondary{background:#e6f0fa;color:var(--brand-dark)}
+  button.secondary:hover{background:#d3e5f6}
+  button.ghost{background:transparent;color:var(--muted);padding:8px 12px;font-weight:600}
+  button.ghost:hover{background:#eef4fa}
+  button.big{width:100%;padding:22px;font-size:1.5rem;border-radius:16px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row>*{flex:1}
+  .choice{padding:26px 14px;font-size:1.2rem}
+  label{display:block;font-weight:600;margin:14px 0 5px;font-size:.93rem}
+  input,select,textarea{width:100%;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fbfdff;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,111,184,.18)}
+  textarea{min-height:80px;resize:vertical}
+  .hint{font-size:.85rem;color:var(--muted);margin-top:4px}
+  .match{margin-top:6px;font-weight:600;font-size:.95rem}
+  .match.ok{color:var(--ok)} .match.bad{color:var(--err)}
+  .radios{display:flex;gap:12px}
+  .radios label{flex:1;margin:0;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;display:flex;gap:8px;align-items:center;cursor:pointer;background:#fbfdff}
+  .radios input{width:auto}
+  .child-row{display:flex;gap:8px;margin-top:8px;align-items:flex-start}
+  .child-row>div{flex:1}
+  .actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .actions .grow{flex:1}
+  .toplinks{display:flex;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:6px}
+  .msg{padding:12px 14px;border-radius:10px;margin-top:14px;font-size:.95rem}
+  .msg.err{background:#fdecea;color:var(--err)} .msg.warn{background:#fff4e5;color:var(--warn)} .msg.ok{background:#e6f6ec;color:var(--ok)}
+  .success{text-align:center}
+  .success .check{font-size:3.4rem;line-height:1}
+  .success ul{list-style:none;padding:0;margin:14px 0;text-align:left}
+  .success li{padding:9px 12px;background:#f2f8fe;border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px}
+  .tag{font-size:.75rem;font-weight:700;border-radius:20px;padding:2px 10px;background:#dcecfb;color:var(--brand-dark);white-space:nowrap}
+  .tabs{display:flex;gap:6px;margin:16px 0;flex-wrap:wrap}
+  .tabs button{background:#e6f0fa;color:var(--brand-dark)}
+  .tabs button.active{background:var(--brand);color:#fff}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:#f2f8fe;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);position:sticky;top:0}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.total td{font-weight:800;background:#f2f8fe}
+  .tablewrap{overflow-x:auto;max-height:520px;border:1px solid var(--line);border-radius:10px}
+  .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end;margin-bottom:12px}
+  .filters label{margin:0 0 4px}
+  .periodlabel{font-size:.78rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;display:block}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:12px}
+  #qrBox{display:flex;justify-content:center;padding:16px;background:#fff}
+  #qrBox img,#qrBox canvas{max-width:100%}
+  .modal{position:fixed;inset:0;background:rgba(10,30,50,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+  .modal .card{max-width:420px;width:100%;text-align:center}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding-bottom:30px}
+  @media print{ body{background:#fff} header,.no-print{display:none} }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CROSSROADS FELLOWSHIP INC.</h1>
+  <div class="verse">
+    “Remember the Sabbath day by keeping it holy. Six days you shall labor and do all your work, but the seventh day is a sabbath to the Lord your God.”
+    <b>EXODUS 20:8–10</b>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HOME -->
+  <section id="v-home" class="card">
+    <h2>Welcome! 🙏</h2>
+    <p class="sub">Tap the button below to record your attendance today.</p>
+    <button class="big" id="btnClockIn">Clock-In</button>
+    <div class="toplinks">
+      <button class="ghost" id="btnQR">📱 Show QR Code</button>
+      <button class="ghost" id="btnAdmin">🔒 Admin / Summary</button>
+    </div>
+  </section>
+
+  <!-- MEMBER OR GUEST -->
+  <section id="v-type" class="card hidden">
+    <h2>Are you a Member or a Guest?</h2>
+    <p class="sub">Please choose one.</p>
+    <div class="row">
+      <button class="choice" id="btnMember">⛪ Member</button>
+      <button class="choice secondary" id="btnGuest">👋 Guest</button>
+    </div>
+    <div class="actions"><button class="ghost" data-go="home">← Back</button></div>
+  </section>
+
+  <!-- MEMBER -->
+  <section id="v-member" class="card hidden">
+    <h2>Member Clock-In</h2>
+    <p class="sub">Enter your Church ID.</p>
+    <label for="memId">Church ID</label>
+    <input id="memId" inputmode="numeric" autocomplete="off" placeholder="e.g. 0001" maxlength="10">
+    <div id="memMatch" class="match"></div>
+
+    <label>Did you bring your kids?</label>
+    <div class="radios">
+      <label><input type="radio" name="kids" value="no" checked> No</label>
+      <label><input type="radio" name="kids" value="yes"> Yes</label>
+    </div>
+    <div id="kidsBox" class="hidden">
+      <label>Child Church ID(s)</label>
+      <div id="kidsList"></div>
+      <button class="secondary" id="btnAddKid" style="margin-top:10px">+ Add another child</button>
+    </div>
+
+    <div id="memMsg"></div>
+    <div class="actions">
+      <button class="ghost" data-go="type">← Back</button>
+      <button class="grow" id="btnMemSubmit">Clock-In</button>
+    </div>
+  </section>
+
+  <!-- GUEST -->
+  <section id="v-guest" class="card hidden">
+    <h2>Guest Registration</h2>
+    <p class="sub">We’re glad you’re here! Please tell us about yourself.</p>
+    <div class="row">
+      <div><label for="gFirst">First Name *</label><input id="gFirst" autocomplete="given-name"></div>
+      <div><label for="gMiddle">Middle Name</label><input id="gMiddle" autocomplete="additional-name"></div>
+      <div><label for="gLast">Last Name *</label><input id="gLast" autocomplete="family-name"></div>
+    </div>
+    <div class="row">
+      <div><label for="gBirth">Birthdate *</label><input id="gBirth" type="date"></div>
+      <div><label for="gAge">Age *</label><input id="gAge" type="number" min="0" max="120" inputmode="numeric"></div>
+    </div>
+    <label for="gAddr">Address</label>
+    <textarea id="gAddr"></textarea>
+    <label for="gHow">How do you know the church?</label>
+    <textarea id="gHow"></textarea>
+    <label for="gContact">Any person you know in the church or contact in the church?</label>
+    <input id="gContact">
+    <label for="gPray">What can we pray for?</label>
+    <textarea id="gPray"></textarea>
+    <div id="guestMsg"></div>
+    <div class="actions">
+      <button class="ghost" data-go="type">← Back</button>
+      <button class="grow" id="btnGuestSubmit">Submit &amp; Clock-In</button>
+    </div>
+  </section>
+
+  <!-- SUCCESS -->
+  <section id="v-done" class="card success hidden">
+    <div class="check">✅</div>
+    <h2 id="doneTitle">You’re clocked in!</h2>
+    <p class="sub" id="doneSub"></p>
+    <ul id="doneList"></ul>
+    <div id="doneMsg"></div>
+    <button class="big" style="font-size:1.1rem;padding:16px" data-go="home">Done</button>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="v-admin" class="hidden">
+    <div class="card">
+      <div class="toolbar">
+        <div><h2 style="margin:0">Attendance Dashboard</h2><span class="hint" id="syncInfo"></span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="secondary" id="btnRefresh">↻ Refresh</button>
+          <button class="secondary" id="btnQR2">📱 QR Code</button>
+          <button class="ghost" id="btnLock">Lock &amp; Exit</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button data-tab="summary" class="active">Summary</button>
+        <button data-tab="history">History</button>
+        <button data-tab="member">Member</button>
+        <button data-tab="guests">Guests</button>
+      </div>
+
+      <!-- Summary -->
+      <div id="t-summary">
+        <div class="toolbar">
+          <div style="max-width:220px"><label for="refDate" style="margin-top:0">View periods containing</label><input type="date" id="refDate"></div>
+          <button id="btnExpSummary">⬇ Export Summary CSV</button>
+        </div>
+        <div class="tablewrap"><table id="summaryTable"></table></div>
+        <p class="hint">Counts are the number of attendance clock-ins (each person is counted once per service date). Weeks run Sunday–Saturday.</p>
+
+        <h3 style="margin:24px 0 8px">Attendance by Service Date</h3>
+        <div class="tablewrap"><table id="byDateTable"></table></div>
+      </div>
+
+      <!-- History -->
+      <div id="t-history" class="hidden">
+        <div class="filters">
+          <div><label>Category</label>
+            <select id="fCat"><option value="">All</option><option>Adult</option><option>Youth</option><option>Senior</option><option>Young Professional</option><option>Children</option><option>Guest</option></select></div>
+          <div><label>From</label><input type="date" id="fFrom"></div>
+          <div><label>To</label><input type="date" id="fTo"></div>
+          <div><label>Search</label><input id="fSearch" placeholder="Name or ID"></div>
+        </div>
+        <div class="toolbar">
+          <span class="hint" id="histCount"></span>
+          <button id="btnExpHist">⬇ Export History CSV</button>
+        </div>
+        <div class="tablewrap"><table id="histTable"></table></div>
+      </div>
+
+      <!-- Member -->
+      <div id="t-member" class="hidden">
+        <div class="filters">
+          <div><label>Category</label>
+            <select id="mCat"><option value="">All</option><option>Adult</option><option>Youth</option><option>Senior</option><option>Young Professional</option><option>Children</option></select></div>
+          <div><label>Status</label>
+            <select id="mStatus"><option value="">All</option><option value="attended">Attended at least once</option><option value="never">Never attended</option></select></div>
+          <div><label>Search</label><input id="mSearch" placeholder="Name or ID"></div>
+        </div>
+        <div class="toolbar">
+          <span class="hint" id="memCount"></span>
+          <button id="btnExpMembers">⬇ Export Members CSV</button>
+        </div>
+        <div class="tablewrap"><table id="memberTable"></table></div>
+      </div>
+
+      <!-- Guests -->
+      <div id="t-guests" class="hidden">
+        <div class="toolbar">
+          <span class="hint">Full guest details for follow-up and prayer.</span>
+          <button id="btnExpGuests">⬇ Export Guests CSV</button>
+        </div>
+        <div class="tablewrap"><table id="guestTable"></table></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ADMIN LOGIN -->
+<div id="loginModal" class="modal hidden">
+  <div class="card">
+    <h2>Admin Access</h2>
+    <p class="sub">Enter the admin PIN.</p>
+    <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" style="text-align:center;font-size:1.3rem;letter-spacing:.3em">
+    <div id="pinMsg"></div>
+    <div class="actions" style="justify-content:center">
+      <button class="ghost" id="pinCancel">Cancel</button>
+      <button id="pinOk">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div id="qrModal" class="modal hidden">
+  <div class="card">
+    <h2>Scan to Clock-In</h2>
+    <p class="sub">Point your phone camera at this code.</p>
+    <div id="qrBox"></div>
+    <label for="qrUrl" style="text-align:left">Link used in the QR code</label>
+    <input id="qrUrl">
+    <p class="hint" style="text-align:left">Tip: after publishing, paste your final public link here (e.g. your GitHub Pages address). It is remembered on this device.</p>
+    <div class="actions" style="justify-content:center">
+      <button class="secondary" id="qrPrint">🖨 Print</button>
+      <button id="qrClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<footer>Crossroads Fellowship Inc. · Attendance</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* =====================================================================
+   SETTINGS  (edit these)
+   ===================================================================== */
+const CONFIG = {
+  // Admin PIN for the Summary / History / Export screens. CHANGE THIS.
+  ADMIN_PIN: "1234",
+  // Paste your Google Apps Script Web App URL here so ALL phones save to ONE shared sheet.
+  // Leave empty ("") to store attendance only on the device being used (good for a single tablet/kiosk).
+  SCRIPT_URL: ""
+};
+
+/* =====================================================================
+   MEMBERSHIP ROSTER  (from Membership_Summary.xlsx – ID, Name, Age only)
+   Address and contact numbers are intentionally NOT included because this
+   page may be public. Replace/extend this list when the full file is ready.
+   ===================================================================== */
+const ROSTER = [
+  {id:"0001", name:"Jeffrey Jardenico", age:42},
+  {id:"0002", name:"Merlina Jardenico", age:43},
+  {id:"0003", name:"Princess Tiffany Jardenico", age:12},
+  {id:"0004", name:"Eric Oebanda", age:47},
+  {id:"0005", name:"Jacquline Oebanda", age:45},
+  {id:"0006", name:"Samantha Oebanda", age:19},
+  {id:"0007", name:"Sachen Oebanda", age:13},
+  {id:"0008", name:"Sissy Oebanda", age:12}
+];
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const CATS = ["Children","Youth","Young Professional","Adult","Senior","Guest"];
+
+function categoryFromAge(a){
+  a = Number(a);
+  if (a <= 12) return "Children";
+  if (a <= 24) return "Youth";
+  if (a <= 30) return "Young Professional";
+  if (a <= 60) return "Adult";
+  return "Senior";
+}
+const pad2 = n => String(n).padStart(2,"0");
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const parseYmd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+const normId = v => { v = String(v||"").trim(); return /^\d+$/.test(v) ? v.padStart(4,"0") : v; };
+const findMember = id => ROSTER.find(m => m.id === normId(id));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+// Storage with graceful fallback (some previews block localStorage)
+const memStore = {};
+const ls = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return memStore[k] ?? null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){ memStore[k] = v; } }
+};
+
+let records = JSON.parse(ls.get("cf_records") || "[]");
+let pending = JSON.parse(ls.get("cf_pending") || "[]");
+let lastSync = ls.get("cf_lastsync") || "";
+
+const persist = () => { ls.set("cf_records", JSON.stringify(records)); ls.set("cf_pending", JSON.stringify(pending)); ls.set("cf_lastsync", lastSync); };
+
+/* =====================================================================
+   DATA LAYER  (local, optionally mirrored to Google Sheets)
+   ===================================================================== */
+async function remotePost(payload){
+  const res = await fetch(CONFIG.SCRIPT_URL, {
+    method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+async function flushPending(){
+  if (!CONFIG.SCRIPT_URL || !pending.length) return;
+  try{
+    await remotePost({action:"add", records: pending});
+    pending = []; persist();
+  }catch(e){ /* stay queued */ }
+}
+async function pullRemote(){
+  if (!CONFIG.SCRIPT_URL) return false;
+  try{
+    await flushPending();
+    const res = await fetch(CONFIG.SCRIPT_URL + "?action=list");
+    const data = await res.json();
+    if (data && Array.isArray(data.records)){
+      records = data.records.map(r => ({...r, age: Number(r.age)||r.age}));
+      lastSync = new Date().toLocaleString(); persist();
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+// Returns { added:[...], skipped:[...] } – skips members already clocked in for that date
+async function saveRecords(list){
+  const added = [], skipped = [];
+  for (const r of list){
+    const dup = r.type === "Member" && records.some(x => x.type==="Member" && x.date===r.date && x.churchId===r.churchId);
+    if (dup) skipped.push(r); else added.push(r);
+  }
+  if (CONFIG.SCRIPT_URL && added.length){
+    try{
+      const res = await remotePost({action:"add", records: added});
+      if (res && Array.isArray(res.skipped)){
+        // server found duplicates from other devices
+        for (const s of res.skipped){
+          const i = added.findIndex(a => a.type==="Member" && a.date===s.date && a.churchId===s.churchId);
+          if (i>-1) skipped.push(...added.splice(i,1));
+        }
+      }
+    }catch(e){
+      pending.push(...added); // offline – will retry later
+    }
+  }
+  records.push(...added);
+  persist();
+  return {added, skipped};
+}
+
+/* =====================================================================
+   NAVIGATION
+   ===================================================================== */
+const views = ["home","type","member","guest","done","admin"];
+function show(name){
+  views.forEach(v => $("#v-"+v).classList.toggle("hidden", v!==name));
+  $("#main").classList.toggle("wide", name==="admin");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$$("[data-go]").forEach(b => b.addEventListener("click", () => { if (b.dataset.go==="home") resetForms(); show(b.dataset.go); }));
+
+function resetForms(){
+  $("#memId").value=""; $("#memMatch").textContent=""; $("#memMsg").innerHTML="";
+  document.querySelector('input[name=kids][value=no]').checked = true;
+  $("#kidsBox").classList.add("hidden"); $("#kidsList").innerHTML="";
+  ["gFirst","gMiddle","gLast","gBirth","gAge","gAddr","gHow","gContact","gPray"].forEach(id => $("#"+id).value="");
+  $("#guestMsg").innerHTML="";
+}
+
+$("#btnClockIn").onclick = () => { flushPending(); show("type"); };
+$("#btnMember").onclick = () => show("member");
+$("#btnGuest").onclick = () => show("guest");
+
+/* =====================================================================
+   MEMBER CLOCK-IN
+   ===================================================================== */
+function matchText(el, id){
+  if (!id.trim()){ el.textContent=""; el.className="match"; return; }
+  const m = findMember(id);
+  if (m){ el.textContent = `✔ ${m.name} · ${categoryFromAge(m.age)}`; el.className="match ok"; }
+  else  { el.textContent = "✖ Church ID not found"; el.className="match bad"; }
+}
+$("#memId").addEventListener("input", e => matchText($("#memMatch"), e.target.value));
+
+function addKidRow(){
+  const wrap = document.createElement("div");
+  wrap.className = "child-row";
+  wrap.innerHTML = `<div><input class="kidId" inputmode="numeric" placeholder="Child Church ID" maxlength="10"><div class="match"></div></div><button class="ghost" title="Remove" type="button">✕</button>`;
+  wrap.querySelector("input").addEventListener("input", e => matchText(wrap.querySelector(".match"), e.target.value));
+  wrap.querySelector("button").onclick = () => wrap.remove();
+  $("#kidsList").appendChild(wrap);
+}
+$("#btnAddKid").onclick = addKidRow;
+$$("input[name=kids]").forEach(r => r.addEventListener("change", () => {
+  const yes = document.querySelector("input[name=kids]:checked").value==="yes";
+  $("#kidsBox").classList.toggle("hidden", !yes);
+  if (yes && !$("#kidsList").children.length) addKidRow();
+}));
+
+const msg = (el, text, cls="err") => { el.innerHTML = `<div class="msg ${cls}">${esc(text)}</div>`; };
+
+$("#btnMemSubmit").onclick = async () => {
+  const box = $("#memMsg"); box.innerHTML="";
+  const me = findMember($("#memId").value);
+  if (!me) return msg(box, "Please enter a valid Church ID.");
+
+  const kids = [];
+  if (document.querySelector("input[name=kids]:checked").value==="yes"){
+    for (const inp of $$(".kidId")){
+      const v = inp.value.trim(); if (!v) continue;
+      const k = findMember(v);
+      if (!k) return msg(box, `Child Church ID "${v}" was not found.`);
+      if (k.id === me.id) return msg(box, "Your own ID can’t be listed as a child.");
+      if (!kids.some(x => x.id===k.id)) kids.push(k);
+    }
+    if (!kids.length) return msg(box, "Please enter at least one child Church ID, or choose “No”.");
+  }
+
+  const now = new Date();
+  const mk = (m, by="") => ({
+    ts: now.toISOString(), date: ymd(now), type:"Member", churchId:m.id, name:m.name, age:m.age,
+    category: categoryFromAge(m.age), ageGroup: categoryFromAge(m.age), broughtBy: by,
+    birthdate:"", address:"", howKnow:"", contactPerson:"", prayer:""
+  });
+  $("#btnMemSubmit").disabled = true;
+  const {added, skipped} = await saveRecords([mk(me), ...kids.map(k => mk(k, me.id))]);
+  $("#btnMemSubmit").disabled = false;
+  showDone(added, skipped, `Welcome, ${me.name.split(" ")[0]}!`);
+};
+
+function showDone(added, skipped, title){
+  $("#doneTitle").textContent = title || "You’re clocked in!";
+  $("#doneSub").textContent = new Date().toLocaleString([], {dateStyle:"full", timeStyle:"short"});
+  $("#doneList").innerHTML = added.map(r => `<li><span>${esc(r.name)}${r.broughtBy?" (child)":""}</span><span class="tag">${esc(r.category)}</span></li>`).join("");
+  $("#doneMsg").innerHTML = skipped.length
+    ? `<div class="msg warn">Already clocked in today: ${esc(skipped.map(s=>s.name).join(", "))}.</div>` : "";
+  if (!added.length) $("#doneTitle").textContent = "Already clocked in";
+  resetForms();
+  show("done");
+}
+
+/* =====================================================================
+   GUEST
+   ===================================================================== */
+$("#gBirth").addEventListener("change", e => {
+  if (!e.target.value) return;
+  const b = parseYmd(e.target.value), t = new Date();
+  let age = t.getFullYear() - b.getFullYear();
+  if (t.getMonth() < b.getMonth() || (t.getMonth()===b.getMonth() && t.getDate() < b.getDate())) age--;
+  if (age >= 0) $("#gAge").value = age;
+});
+$("#btnGuestSubmit").onclick = async () => {
+  const box = $("#guestMsg"); box.innerHTML="";
+  const first=$("#gFirst").value.trim(), mid=$("#gMiddle").value.trim(), last=$("#gLast").value.trim();
+  const age=$("#gAge").value, birth=$("#gBirth").value;
+  if (!first || !last) return msg(box,"Please enter your first and last name.");
+  if (!birth) return msg(box,"Please enter your birthdate.");
+  if (age==="" || Number(age)<0) return msg(box,"Please enter your age.");
+  const now = new Date();
+  const name = [first, mid, last].filter(Boolean).join(" ");
+  const rec = {
+    ts: now.toISOString(), date: ymd(now), type:"Guest", churchId:"", name, age:Number(age),
+    category:"Guest", ageGroup: categoryFromAge(age), broughtBy:"",
+    birthdate:birth, address:$("#gAddr").value.trim(), howKnow:$("#gHow").value.trim(),
+    contactPerson:$("#gContact").value.trim(), prayer:$("#gPray").value.trim()
+  };
+  $("#btnGuestSubmit").disabled = true;
+  const {added, skipped} = await saveRecords([rec]);
+  $("#btnGuestSubmit").disabled = false;
+  showDone(added, skipped, `Welcome, ${first}!`);
+};
+
+/* =====================================================================
+   QR CODE
+   ===================================================================== */
+function drawQR(){
+  const url = $("#qrUrl").value.trim();
+  const box = $("#qrBox"); box.innerHTML = "";
+  if (typeof QRCode === "undefined"){ box.textContent = "QR library could not load (check internet connection)."; return; }
+  if (!url) return;
+  new QRCode(box, {text:url, width:240, height:240, correctLevel: QRCode.CorrectLevel.M});
+}
+function openQR(){
+  $("#qrUrl").value = ls.get("cf_qrurl") || location.href.split("#")[0];
+  $("#qrModal").classList.remove("hidden"); drawQR();
+}
+$("#qrUrl").addEventListener("input", () => { ls.set("cf_qrurl", $("#qrUrl").value.trim()); drawQR(); });
+$("#qrClose").onclick = () => $("#qrModal").classList.add("hidden");
+$("#qrPrint").onclick = () => window.print();
+$("#btnQR").onclick = openQR; $("#btnQR2").onclick = openQR;
+
+/* =====================================================================
+   ADMIN
+   ===================================================================== */
+let unlocked = false;
+$("#btnAdmin").onclick = () => unlocked ? enterAdmin() : ($("#loginModal").classList.remove("hidden"), $("#pinInput").value="", $("#pinMsg").innerHTML="", $("#pinInput").focus());
+$("#pinCancel").onclick = () => $("#loginModal").classList.add("hidden");
+$("#pinInput").addEventListener("keydown", e => { if (e.key==="Enter") $("#pinOk").click(); });
+$("#pinOk").onclick = () => {
+  if ($("#pinInput").value === CONFIG.ADMIN_PIN){ unlocked = true; $("#loginModal").classList.add("hidden"); enterAdmin(); }
+  else msg($("#pinMsg"), "Incorrect PIN.");
+};
+$("#btnLock").onclick = () => { unlocked = false; show("home"); };
+$("#btnRefresh").onclick = async () => { await pullRemote(); renderAdmin(); };
+
+async function enterAdmin(){
+  $("#refDate").value = ymd(new Date());
+  show("admin");
+  if (CONFIG.SCRIPT_URL) await pullRemote();
+  renderAdmin();
+}
+$$(".tabs button").forEach(b => b.onclick = () => {
+  $$(".tabs button").forEach(x => x.classList.toggle("active", x===b));
+  ["summary","history","member","guests"].forEach(t => $("#t-"+t).classList.toggle("hidden", t!==b.dataset.tab));
+});
+["fCat","fFrom","fTo","fSearch","refDate","mCat","mStatus","mSearch"].forEach(id => $("#"+id).addEventListener("input", renderAdmin));
+
+/* ---- period math ---- */
+function periodRanges(refStr){
+  const d = parseYmd(refStr), y = d.getFullYear(), m = d.getMonth();
+  const wkStart = new Date(y, m, d.getDate() - d.getDay()), wkEnd = new Date(y, m, d.getDate() - d.getDay() + 6);
+  const q = Math.floor(m/3), h = Math.floor(m/6);
+  const mon = (dt) => dt.toLocaleDateString([], {month:"short", day:"numeric"});
+  return [
+    {key:"Weekly",    from:ymd(wkStart), to:ymd(wkEnd), label:`${mon(wkStart)} – ${mon(wkEnd)}, ${wkEnd.getFullYear()}`},
+    {key:"Monthly",   from:ymd(new Date(y,m,1)), to:ymd(new Date(y,m+1,0)), label:d.toLocaleDateString([], {month:"long", year:"numeric"})},
+    {key:"Quarterly", from:ymd(new Date(y,q*3,1)), to:ymd(new Date(y,q*3+3,0)), label:`Q${q+1} ${y}`},
+    {key:"Bi-Annual", from:ymd(new Date(y,h*6,1)), to:ymd(new Date(y,h*6+6,0)), label:`${h?"Jul–Dec":"Jan–Jun"} ${y}`},
+    {key:"Annual",    from:`${y}-01-01`, to:`${y}-12-31`, label:String(y)}
+  ];
+}
+const inRange = (r, p) => r.date >= p.from && r.date <= p.to;
+
+function summaryData(){
+  const periods = periodRanges($("#refDate").value || ymd(new Date()));
+  const rows = CATS.map(c => ({cat:c, counts: periods.map(p => records.filter(r => r.category===c && inRange(r,p)).length)}));
+  const totals = periods.map((p,i) => rows.reduce((s,r)=>s+r.counts[i],0));
+  return {periods, rows, totals};
+}
+
+function renderAdmin(){
+  $("#syncInfo").textContent = CONFIG.SCRIPT_URL
+    ? `Shared sheet connected${lastSync? " · last sync "+lastSync:""}${pending.length? " · "+pending.length+" waiting to upload":""}`
+    : "Stored on this device only (no shared sheet connected)";
+
+  // Summary
+  const {periods, rows, totals} = summaryData();
+  $("#summaryTable").innerHTML =
+    `<thead><tr><th>Category</th>${periods.map(p=>`<th class="num">${p.key}<span class="periodlabel">${esc(p.label)}</span></th>`).join("")}</tr></thead><tbody>` +
+    rows.map(r => `<tr><td>${esc(r.cat)}</td>${r.counts.map(n=>`<td class="num">${n}</td>`).join("")}</tr>`).join("") +
+    `<tr class="total"><td>Total</td>${totals.map(n=>`<td class="num">${n}</td>`).join("")}</tr></tbody>`;
+
+  // By date
+  const dates = [...new Set(records.map(r=>r.date))].sort().reverse();
+  $("#byDateTable").innerHTML =
+    `<thead><tr><th>Date</th>${CATS.map(c=>`<th class="num">${c==="Young Professional"?"Young Prof.":c}</th>`).join("")}<th class="num">Total</th></tr></thead><tbody>` +
+    (dates.length ? dates.map(dt => {
+      const cs = CATS.map(c => records.filter(r=>r.date===dt && r.category===c).length);
+      return `<tr><td>${esc(parseYmd(dt).toLocaleDateString([], {weekday:"short", year:"numeric", month:"short", day:"numeric"}))}</td>${cs.map(n=>`<td class="num">${n}</td>`).join("")}<td class="num"><b>${cs.reduce((a,b)=>a+b,0)}</b></td></tr>`;
+    }).join("") : `<tr><td colspan="${CATS.length+2}">No attendance recorded yet.</td></tr>`) + "</tbody>";
+
+  // History
+  const hist = filteredHistory();
+  $("#histCount").textContent = `${hist.length} record(s)`;
+  $("#histTable").innerHTML =
+    `<thead><tr><th>Date</th><th>Time</th><th>Church ID</th><th>Name</th><th>Age</th><th>Category</th><th>Brought by</th></tr></thead><tbody>` +
+    (hist.length ? hist.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(new Date(r.ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}))}</td><td>${esc(r.churchId||"—")}</td><td>${esc(r.name)}</td><td>${esc(r.age)}</td><td><span class="tag">${esc(r.category)}</span></td><td>${esc(r.broughtBy||"")}</td></tr>`).join("")
+      : `<tr><td colspan="7">No records match.</td></tr>`) + "</tbody>";
+
+  // Members
+  const mem = memberRows();
+  $("#memCount").textContent = `${mem.length} of ${ROSTER.length} member(s)`;
+  $("#memberTable").innerHTML =
+    `<thead><tr><th>Church ID</th><th>Name</th><th>Age</th><th>Category</th><th class="num">Total Attended</th><th class="num">This Year</th><th>Last Attended</th></tr></thead><tbody>` +
+    (mem.length ? mem.map(m => `<tr><td>${esc(m.id)}</td><td>${esc(m.name)}</td><td>${esc(m.age)}</td><td><span class="tag">${esc(m.category)}</span></td><td class="num">${m.total}</td><td class="num">${m.year}</td><td>${esc(m.last||"—")}</td></tr>`).join("")
+      : `<tr><td colspan="7">No members match.</td></tr>`) + "</tbody>";
+
+  // Guests
+  const guests = records.filter(r=>r.type==="Guest").sort((a,b)=>b.ts.localeCompare(a.ts));
+  $("#guestTable").innerHTML =
+    `<thead><tr><th>Date</th><th>Name</th><th>Age</th><th>Birthdate</th><th>Address</th><th>How they know us</th><th>Contact in church</th><th>Prayer request</th></tr></thead><tbody>` +
+    (guests.length ? guests.map(g => `<tr><td>${esc(g.date)}</td><td>${esc(g.name)}</td><td>${esc(g.age)}</td><td>${esc(g.birthdate)}</td><td>${esc(g.address)}</td><td>${esc(g.howKnow)}</td><td>${esc(g.contactPerson)}</td><td>${esc(g.prayer)}</td></tr>`).join("")
+      : `<tr><td colspan="8">No guests yet.</td></tr>`) + "</tbody>";
+}
+
+function memberRows(){
+  const cat=$("#mCat").value, status=$("#mStatus").value, q=$("#mSearch").value.trim().toLowerCase();
+  const yr = String(new Date().getFullYear());
+  return ROSTER.map(m => {
+    const mine = records.filter(r => r.type==="Member" && r.churchId===m.id);
+    const dates = mine.map(r => r.date).sort();
+    return {id:m.id, name:m.name, age:m.age, category:categoryFromAge(m.age),
+            total:mine.length, year:mine.filter(r => r.date.startsWith(yr)).length, last:dates[dates.length-1]||""};
+  }).filter(m =>
+    (!cat || m.category===cat) &&
+    (!status || (status==="attended" ? m.total>0 : m.total===0)) &&
+    (!q || m.name.toLowerCase().includes(q) || m.id.includes(q))
+  );
+}
+
+function filteredHistory(){
+  const cat=$("#fCat").value, from=$("#fFrom").value, to=$("#fTo").value, q=$("#fSearch").value.trim().toLowerCase();
+  return records.filter(r =>
+    (!cat || r.category===cat) && (!from || r.date>=from) && (!to || r.date<=to) &&
+    (!q || (r.name||"").toLowerCase().includes(q) || (r.churchId||"").includes(q))
+  ).sort((a,b)=>b.ts.localeCompare(a.ts));
+}
+
+/* =====================================================================
+   CSV EXPORT
+   ===================================================================== */
+function csvCell(v){
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;           // block spreadsheet formula injection
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function downloadCSV(filename, rows){
+  const text = "\ufeff" + rows.map(r => r.map(csvCell).join(",")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], {type:"text/csv;charset=utf-8"}));
+  a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+const stamp = () => ymd(new Date());
+
+$("#btnExpHist").onclick = () => downloadCSV(`attendance-history-${stamp()}.csv`, [
+  ["Date","Time","Type","Church ID","Name","Age","Category","Brought By (Parent ID)"],
+  ...filteredHistory().map(r => [r.date, new Date(r.ts).toLocaleTimeString(), r.type, r.churchId, r.name, r.age, r.category, r.broughtBy])
+]);
+$("#btnExpMembers").onclick = () => downloadCSV(`members-${stamp()}.csv`, [
+  ["Church ID","Name","Age","Category","Total Attended","Attended This Year","Last Attended"],
+  ...memberRows().map(m => [m.id, m.name, m.age, m.category, m.total, m.year, m.last])
+]);
+$("#btnExpGuests").onclick = () => downloadCSV(`guests-${stamp()}.csv`, [
+  ["Date","Name","Age","Age Group","Birthdate","Address","How They Know the Church","Contact in Church","Prayer Request"],
+  ...records.filter(r=>r.type==="Guest").sort((a,b)=>b.ts.localeCompare(a.ts)).map(g => [g.date,g.name,g.age,g.ageGroup,g.birthdate,g.address,g.howKnow,g.contactPerson,g.prayer])
+]);
+$("#btnExpSummary").onclick = () => {
+  const {periods, rows, totals} = summaryData();
+  downloadCSV(`attendance-summary-${stamp()}.csv`, [
+    ["Category", ...periods.map(p => `${p.key} (${p.label})`)],
+    ...rows.map(r => [r.cat, ...r.counts]),
+    ["Total", ...totals]
+  ]);
+};
+
+// try to upload anything queued from an earlier offline session
+flushPending();
+</script>
+</body>
+</html>
