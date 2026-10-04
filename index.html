@@ -147,13 +147,29 @@
       <div><label for="gBirth">Birthdate *</label><input id="gBirth" type="date"></div>
       <div><label for="gAge">Age *</label><input id="gAge" type="number" min="0" max="120" inputmode="numeric"></div>
     </div>
-    <label for="gAddr">Address</label>
-    <textarea id="gAddr"></textarea>
-    <label for="gHow">How do you know the church?</label>
-    <textarea id="gHow"></textarea>
-    <label for="gContact">Any person you know in the church or contact in the church?</label>
-    <input id="gContact">
-    <label for="gPray">What can we pray for?</label>
+    <label for="gReason">1. What brings you to our church today?</label>
+    <textarea id="gReason"></textarea>
+
+    <label>2. Are you from the local area or just visiting?</label>
+    <div class="radios">
+      <label><input type="radio" name="gLocal" value="Local area"> Local area</label>
+      <label><input type="radio" name="gLocal" value="Just visiting"> Just visiting</label>
+    </div>
+
+    <label for="gHeard">3. How did you hear about our church?</label>
+    <input id="gHeard">
+
+    <label>4. Do you have any children with you today?</label>
+    <div class="radios">
+      <label><input type="radio" name="gKids" value="Yes"> Yes</label>
+      <label><input type="radio" name="gKids" value="No"> No</label>
+    </div>
+    <div id="gKidsDetail" class="hidden">
+      <label for="gKidsInfo">Their names and ages (optional)</label>
+      <input id="gKidsInfo">
+    </div>
+
+    <label for="gPray">5. How can we best pray for you or serve you this week?</label>
     <textarea id="gPray"></textarea>
     <div id="guestMsg"></div>
     <div class="actions">
@@ -269,7 +285,7 @@
     <div id="qrBox"></div>
     <label for="qrUrl" style="text-align:left">Link used in the QR code</label>
     <input id="qrUrl">
-    <p class="hint" style="text-align:left">Tip: after publishing, paste your final public link here (e.g. your GitHub Pages address). It is remembered on this device.</p>
+    <p class="hint" style="text-align:left">Tip: after publishing, paste your final public link here (your final website address). It is remembered on this device.</p>
     <div class="actions" style="justify-content:center">
       <button class="secondary" id="qrPrint">🖨 Print</button>
       <button id="qrClose">Close</button>
@@ -439,7 +455,9 @@ function resetForms(){
   $("#memId").value=""; $("#memMatch").textContent=""; $("#memMsg").innerHTML="";
   document.querySelector('input[name=kids][value=no]').checked = true;
   $("#kidsBox").classList.add("hidden"); $("#kidsList").innerHTML="";
-  ["gFirst","gMiddle","gLast","gBirth","gAge","gAddr","gHow","gContact","gPray"].forEach(id => $("#"+id).value="");
+  ["gFirst","gMiddle","gLast","gBirth","gAge","gReason","gHeard","gKidsInfo","gPray"].forEach(id => $("#"+id).value="");
+  $$("input[name=gLocal],input[name=gKids]").forEach(r => r.checked = false);
+  $("#gKidsDetail").classList.add("hidden");
   $("#guestMsg").innerHTML="";
 }
 
@@ -496,7 +514,7 @@ $("#btnMemSubmit").onclick = async () => {
   const mk = (m, by="") => ({
     ts: now.toISOString(), date: churchNow().date, type:"Member", churchId:m.id, name:m.name, age:m.age,
     category: categoryFromAge(m.age), ageGroup: categoryFromAge(m.age), broughtBy: by,
-    birthdate:"", address:"", howKnow:"", contactPerson:"", prayer:""
+    birthdate:"", reason:"", residence:"", heardFrom:"", withKids:"", prayerServe:""
   });
   $("#btnMemSubmit").disabled = true;
   const {added, skipped} = await saveRecords([mk(me), ...kids.map(k => mk(k, me.id))]);
@@ -525,6 +543,10 @@ $("#gBirth").addEventListener("change", e => {
   if (t.getMonth() < b.getMonth() || (t.getMonth()===b.getMonth() && t.getDate() < b.getDate())) age--;
   if (age >= 0) $("#gAge").value = age;
 });
+$$("input[name=gKids]").forEach(r => r.addEventListener("change", () => {
+  const yes = document.querySelector("input[name=gKids]:checked")?.value === "Yes";
+  $("#gKidsDetail").classList.toggle("hidden", !yes);
+}));
 $("#btnGuestSubmit").onclick = async () => {
   const box = $("#guestMsg"); box.innerHTML="";
   const first=$("#gFirst").value.trim(), mid=$("#gMiddle").value.trim(), last=$("#gLast").value.trim();
@@ -537,8 +559,16 @@ $("#btnGuestSubmit").onclick = async () => {
   const rec = {
     ts: now.toISOString(), date: churchNow().date, type:"Guest", churchId:"", name, age:Number(age),
     category:"Guest", ageGroup: categoryFromAge(age), broughtBy:"",
-    birthdate:birth, address:$("#gAddr").value.trim(), howKnow:$("#gHow").value.trim(),
-    contactPerson:$("#gContact").value.trim(), prayer:$("#gPray").value.trim()
+    birthdate:birth,
+    reason:$("#gReason").value.trim(),
+    residence:document.querySelector("input[name=gLocal]:checked")?.value || "",
+    heardFrom:$("#gHeard").value.trim(),
+    withKids:(() => {
+      const k = document.querySelector("input[name=gKids]:checked")?.value || "";
+      const info = $("#gKidsInfo").value.trim();
+      return k==="Yes" && info ? `Yes – ${info}` : k;
+    })(),
+    prayerServe:$("#gPray").value.trim()
   };
   $("#btnGuestSubmit").disabled = true;
   const {added, skipped} = await saveRecords([rec]);
@@ -654,9 +684,9 @@ function renderAdmin(){
   // Guests
   const guests = records.filter(r=>r.type==="Guest").sort((a,b)=>b.ts.localeCompare(a.ts));
   $("#guestTable").innerHTML =
-    `<thead><tr><th>Date</th><th>Name</th><th>Age</th><th>Birthdate</th><th>Address</th><th>How they know us</th><th>Contact in church</th><th>Prayer request</th></tr></thead><tbody>` +
-    (guests.length ? guests.map(g => `<tr><td>${esc(g.date)}</td><td>${esc(g.name)}</td><td>${esc(g.age)}</td><td>${esc(g.birthdate)}</td><td>${esc(g.address)}</td><td>${esc(g.howKnow)}</td><td>${esc(g.contactPerson)}</td><td>${esc(g.prayer)}</td></tr>`).join("")
-      : `<tr><td colspan="8">No guests yet.</td></tr>`) + "</tbody>";
+    `<thead><tr><th>Date</th><th>Name</th><th>Age</th><th>Birthdate</th><th>What brings them</th><th>Local / Visiting</th><th>Heard about us</th><th>Children with them</th><th>Pray for / serve</th></tr></thead><tbody>` +
+    (guests.length ? guests.map(g => `<tr><td>${esc(g.date)}</td><td>${esc(g.name)}</td><td>${esc(g.age)}</td><td>${esc(g.birthdate)}</td><td>${esc(g.reason)}</td><td>${esc(g.residence)}</td><td>${esc(g.heardFrom)}</td><td>${esc(g.withKids)}</td><td>${esc(g.prayerServe)}</td></tr>`).join("")
+      : `<tr><td colspan="9">No guests yet.</td></tr>`) + "</tbody>";
 }
 
 function memberRows(){
@@ -708,8 +738,8 @@ $("#btnExpMembers").onclick = () => downloadCSV(`members-${stamp()}.csv`, [
   ...memberRows().map(m => [m.id, m.name, m.age, m.category, m.total, m.year, m.last])
 ]);
 $("#btnExpGuests").onclick = () => downloadCSV(`guests-${stamp()}.csv`, [
-  ["Date","Name","Age","Age Group","Birthdate","Address","How They Know the Church","Contact in Church","Prayer Request"],
-  ...records.filter(r=>r.type==="Guest").sort((a,b)=>b.ts.localeCompare(a.ts)).map(g => [g.date,g.name,g.age,g.ageGroup,g.birthdate,g.address,g.howKnow,g.contactPerson,g.prayer])
+  ["Date","Name","Age","Age Group","Birthdate","What brings you to our church today?","Local area or just visiting?","How did you hear about our church?","Any children with you today?","How can we best pray for you or serve you this week?"],
+  ...records.filter(r=>r.type==="Guest").sort((a,b)=>b.ts.localeCompare(a.ts)).map(g => [g.date,g.name,g.age,g.ageGroup,g.birthdate,g.reason,g.residence,g.heardFrom,g.withKids,g.prayerServe])
 ]);
 $("#btnExpSummary").onclick = () => {
   const {periods, rows, totals} = summaryData();
