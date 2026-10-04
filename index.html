@@ -1,4 +1,6 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Crossroads Fellowship Inc. – Attendance</title>
@@ -82,16 +84,16 @@
   </div>
 </header>
 
-<main id="main" class="wide">
+<main id="main">
 
   <!-- HOME -->
-  <section id="v-home" class="card hidden">
+  <section id="v-home" class="card">
     <h2>Welcome! 🙏</h2>
     <p class="sub">Tap the button below to record your attendance today.</p>
     <button class="big" id="btnClockIn">Clock-In</button>
     <div class="toplinks">
       <button class="ghost" id="btnQR">📱 Show QR Code</button>
-      <button class="ghost" id="btnAdmin">🔒 Admin / Summary</button>
+      <button class="ghost" id="btnAdmin" style="font-size:.8rem;opacity:.75">🔒 Admin</button>
     </div>
   </section>
 
@@ -112,11 +114,11 @@
     <p class="sub">Enter your Church ID.</p>
     <label for="memId">Church ID</label>
     <input id="memId" inputmode="numeric" autocomplete="off" placeholder="e.g. 0001" maxlength="10">
-    <div id="memMatch" class="match ok"></div>
+    <div id="memMatch" class="match"></div>
 
     <label>Did you bring your kids?</label>
     <div class="radios">
-      <label><input type="radio" name="kids" value="no" checked=""> No</label>
+      <label><input type="radio" name="kids" value="no" checked> No</label>
       <label><input type="radio" name="kids" value="yes"> Yes</label>
     </div>
     <div id="kidsBox" class="hidden">
@@ -163,18 +165,18 @@
   <!-- SUCCESS -->
   <section id="v-done" class="card success hidden">
     <div class="check">✅</div>
-    <h2 id="doneTitle">Welcome, Jeffrey!</h2>
-    <p class="sub" id="doneSub">Sunday, October 4, 2026 at 12:18 AM</p>
-    <ul id="doneList"><li><span>Jeffrey Jardenico</span><span class="tag">Adult</span></li><li><span>Princess Tiffany Jardenico (child)</span><span class="tag">Children</span></li></ul>
+    <h2 id="doneTitle">You’re clocked in!</h2>
+    <p class="sub" id="doneSub"></p>
+    <ul id="doneList"></ul>
     <div id="doneMsg"></div>
     <button class="big" style="font-size:1.1rem;padding:16px" data-go="home">Done</button>
   </section>
 
   <!-- ADMIN -->
-  <section id="v-admin" class="">
+  <section id="v-admin" class="hidden">
     <div class="card">
       <div class="toolbar">
-        <div><h2 style="margin:0">Attendance Dashboard</h2><span class="hint" id="syncInfo">Stored on this device only (no shared sheet connected)</span></div>
+        <div><h2 style="margin:0">Attendance Dashboard</h2><span class="hint" id="syncInfo"></span></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="secondary" id="btnRefresh">↻ Refresh</button>
           <button class="secondary" id="btnQR2">📱 QR Code</button>
@@ -183,21 +185,22 @@
       </div>
       <div class="tabs">
         <button data-tab="summary" class="active">Summary</button>
-        <button data-tab="history" class="">History</button>
-        <button data-tab="guests" class="">Guests</button>
+        <button data-tab="history">History</button>
+        <button data-tab="member">Member</button>
+        <button data-tab="guests">Guests</button>
       </div>
 
       <!-- Summary -->
-      <div id="t-summary" class="">
+      <div id="t-summary">
         <div class="toolbar">
           <div style="max-width:220px"><label for="refDate" style="margin-top:0">View periods containing</label><input type="date" id="refDate"></div>
           <button id="btnExpSummary">⬇ Export Summary CSV</button>
         </div>
-        <div class="tablewrap"><table id="summaryTable"><thead><tr><th>Category</th><th class="num">Weekly<span class="periodlabel">Oct 4 – Oct 10, 2026</span></th><th class="num">Monthly<span class="periodlabel">October 2026</span></th><th class="num">Quarterly<span class="periodlabel">Q4 2026</span></th><th class="num">Bi-Annual<span class="periodlabel">Jul–Dec 2026</span></th><th class="num">Annual<span class="periodlabel">2026</span></th></tr></thead><tbody><tr><td>Children</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">1</td></tr><tr><td>Youth</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr><tr><td>Young Professional</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr><tr><td>Adult</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">1</td></tr><tr><td>Senior</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr><tr><td>Guest</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr><tr class="total"><td>Total</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">2</td></tr></tbody></table></div>
+        <div class="tablewrap"><table id="summaryTable"></table></div>
         <p class="hint">Counts are the number of attendance clock-ins (each person is counted once per service date). Weeks run Sunday–Saturday.</p>
 
         <h3 style="margin:24px 0 8px">Attendance by Service Date</h3>
-        <div class="tablewrap"><table id="byDateTable"><thead><tr><th>Date</th><th class="num">Children</th><th class="num">Youth</th><th class="num">Young Prof.</th><th class="num">Adult</th><th class="num">Senior</th><th class="num">Guest</th><th class="num">Total</th></tr></thead><tbody><tr><td>Sun, Oct 4, 2026</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num"><b>2</b></td></tr></tbody></table></div>
+        <div class="tablewrap"><table id="byDateTable"></table></div>
       </div>
 
       <!-- History -->
@@ -210,10 +213,26 @@
           <div><label>Search</label><input id="fSearch" placeholder="Name or ID"></div>
         </div>
         <div class="toolbar">
-          <span class="hint" id="histCount">2 record(s)</span>
+          <span class="hint" id="histCount"></span>
           <button id="btnExpHist">⬇ Export History CSV</button>
         </div>
-        <div class="tablewrap"><table id="histTable"><thead><tr><th>Date</th><th>Time</th><th>Church ID</th><th>Name</th><th>Age</th><th>Category</th><th>Brought by</th></tr></thead><tbody><tr><td>2026-10-04</td><td>12:18 AM</td><td>0001</td><td>Jeffrey Jardenico</td><td>42</td><td><span class="tag">Adult</span></td><td></td></tr><tr><td>2026-10-04</td><td>12:18 AM</td><td>0003</td><td>Princess Tiffany Jardenico</td><td>12</td><td><span class="tag">Children</span></td><td>0001</td></tr></tbody></table></div>
+        <div class="tablewrap"><table id="histTable"></table></div>
+      </div>
+
+      <!-- Member -->
+      <div id="t-member" class="hidden">
+        <div class="filters">
+          <div><label>Category</label>
+            <select id="mCat"><option value="">All</option><option>Adult</option><option>Youth</option><option>Senior</option><option>Young Professional</option><option>Children</option></select></div>
+          <div><label>Status</label>
+            <select id="mStatus"><option value="">All</option><option value="attended">Attended at least once</option><option value="never">Never attended</option></select></div>
+          <div><label>Search</label><input id="mSearch" placeholder="Name or ID"></div>
+        </div>
+        <div class="toolbar">
+          <span class="hint" id="memCount"></span>
+          <button id="btnExpMembers">⬇ Export Members CSV</button>
+        </div>
+        <div class="tablewrap"><table id="memberTable"></table></div>
       </div>
 
       <!-- Guests -->
@@ -222,7 +241,7 @@
           <span class="hint">Full guest details for follow-up and prayer.</span>
           <button id="btnExpGuests">⬇ Export Guests CSV</button>
         </div>
-        <div class="tablewrap"><table id="guestTable"><thead><tr><th>Date</th><th>Name</th><th>Age</th><th>Birthdate</th><th>Address</th><th>How they know us</th><th>Contact in church</th><th>Prayer request</th></tr></thead><tbody><tr><td colspan="8">No guests yet.</td></tr></tbody></table></div>
+        <div class="tablewrap"><table id="guestTable"></table></div>
       </div>
     </div>
   </section>
@@ -247,7 +266,7 @@
   <div class="card">
     <h2>Scan to Clock-In</h2>
     <p class="sub">Point your phone camera at this code.</p>
-    <div id="qrBox" title="file:///C:/Users/jefjar1/AppData/Local/Temp/67bac275-f404-4024-a4c7-6c888401a4a3_files.clockin.zip.files.clockin.zip/index.html"><canvas width="240" height="240" style="display: none;"></canvas><img src="data:image/png;base64,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" style="display: block;"></div>
+    <div id="qrBox"></div>
     <label for="qrUrl" style="text-align:left">Link used in the QR code</label>
     <input id="qrUrl">
     <p class="hint" style="text-align:left">Tip: after publishing, paste your final public link here (e.g. your GitHub Pages address). It is remembered on this device.</p>
@@ -543,9 +562,9 @@ async function enterAdmin(){
 }
 $$(".tabs button").forEach(b => b.onclick = () => {
   $$(".tabs button").forEach(x => x.classList.toggle("active", x===b));
-  ["summary","history","guests"].forEach(t => $("#t-"+t).classList.toggle("hidden", t!==b.dataset.tab));
+  ["summary","history","member","guests"].forEach(t => $("#t-"+t).classList.toggle("hidden", t!==b.dataset.tab));
 });
-["fCat","fFrom","fTo","fSearch","refDate"].forEach(id => $("#"+id).addEventListener("input", renderAdmin));
+["fCat","fFrom","fTo","fSearch","refDate","mCat","mStatus","mSearch"].forEach(id => $("#"+id).addEventListener("input", renderAdmin));
 
 /* ---- period math ---- */
 function periodRanges(refStr){
@@ -599,12 +618,35 @@ function renderAdmin(){
     (hist.length ? hist.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(new Date(r.ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}))}</td><td>${esc(r.churchId||"—")}</td><td>${esc(r.name)}</td><td>${esc(r.age)}</td><td><span class="tag">${esc(r.category)}</span></td><td>${esc(r.broughtBy||"")}</td></tr>`).join("")
       : `<tr><td colspan="7">No records match.</td></tr>`) + "</tbody>";
 
+  // Members
+  const mem = memberRows();
+  $("#memCount").textContent = `${mem.length} of ${ROSTER.length} member(s)`;
+  $("#memberTable").innerHTML =
+    `<thead><tr><th>Church ID</th><th>Name</th><th>Age</th><th>Category</th><th class="num">Total Attended</th><th class="num">This Year</th><th>Last Attended</th></tr></thead><tbody>` +
+    (mem.length ? mem.map(m => `<tr><td>${esc(m.id)}</td><td>${esc(m.name)}</td><td>${esc(m.age)}</td><td><span class="tag">${esc(m.category)}</span></td><td class="num">${m.total}</td><td class="num">${m.year}</td><td>${esc(m.last||"—")}</td></tr>`).join("")
+      : `<tr><td colspan="7">No members match.</td></tr>`) + "</tbody>";
+
   // Guests
   const guests = records.filter(r=>r.type==="Guest").sort((a,b)=>b.ts.localeCompare(a.ts));
   $("#guestTable").innerHTML =
     `<thead><tr><th>Date</th><th>Name</th><th>Age</th><th>Birthdate</th><th>Address</th><th>How they know us</th><th>Contact in church</th><th>Prayer request</th></tr></thead><tbody>` +
     (guests.length ? guests.map(g => `<tr><td>${esc(g.date)}</td><td>${esc(g.name)}</td><td>${esc(g.age)}</td><td>${esc(g.birthdate)}</td><td>${esc(g.address)}</td><td>${esc(g.howKnow)}</td><td>${esc(g.contactPerson)}</td><td>${esc(g.prayer)}</td></tr>`).join("")
       : `<tr><td colspan="8">No guests yet.</td></tr>`) + "</tbody>";
+}
+
+function memberRows(){
+  const cat=$("#mCat").value, status=$("#mStatus").value, q=$("#mSearch").value.trim().toLowerCase();
+  const yr = String(new Date().getFullYear());
+  return ROSTER.map(m => {
+    const mine = records.filter(r => r.type==="Member" && r.churchId===m.id);
+    const dates = mine.map(r => r.date).sort();
+    return {id:m.id, name:m.name, age:m.age, category:categoryFromAge(m.age),
+            total:mine.length, year:mine.filter(r => r.date.startsWith(yr)).length, last:dates[dates.length-1]||""};
+  }).filter(m =>
+    (!cat || m.category===cat) &&
+    (!status || (status==="attended" ? m.total>0 : m.total===0)) &&
+    (!q || m.name.toLowerCase().includes(q) || m.id.includes(q))
+  );
 }
 
 function filteredHistory(){
@@ -636,6 +678,10 @@ $("#btnExpHist").onclick = () => downloadCSV(`attendance-history-${stamp()}.csv`
   ["Date","Time","Type","Church ID","Name","Age","Category","Brought By (Parent ID)"],
   ...filteredHistory().map(r => [r.date, new Date(r.ts).toLocaleTimeString(), r.type, r.churchId, r.name, r.age, r.category, r.broughtBy])
 ]);
+$("#btnExpMembers").onclick = () => downloadCSV(`members-${stamp()}.csv`, [
+  ["Church ID","Name","Age","Category","Total Attended","Attended This Year","Last Attended"],
+  ...memberRows().map(m => [m.id, m.name, m.age, m.category, m.total, m.year, m.last])
+]);
 $("#btnExpGuests").onclick = () => downloadCSV(`guests-${stamp()}.csv`, [
   ["Date","Name","Age","Age Group","Birthdate","Address","How They Know the Church","Contact in Church","Prayer Request"],
   ...records.filter(r=>r.type==="Guest").sort((a,b)=>b.ts.localeCompare(a.ts)).map(g => [g.date,g.name,g.age,g.ageGroup,g.birthdate,g.address,g.howKnow,g.contactPerson,g.prayer])
@@ -649,9 +695,13 @@ $("#btnExpSummary").onclick = () => {
   ]);
 };
 
+// Always start on the Clock-In home page (also when the browser restores a cached page)
+unlocked = false;
+show("home");
+window.addEventListener("pageshow", e => { if (e.persisted){ unlocked = false; show("home"); } });
+
 // try to upload anything queued from an earlier offline session
 flushPending();
 </script>
-
-
-</body></html>
+</body>
+</html>
