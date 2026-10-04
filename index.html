@@ -331,7 +331,7 @@ function categoryFromAge(a){
   if (a <= 12) return "Children";
   if (a <= 24) return "Youth";
   if (a <= 30) return "Young Professional";
-  if (a <= 60) return "Adult";
+  if (a <= 59) return "Adult";
   return "Senior";
 }
 const pad2 = n => String(n).padStart(2,"0");
@@ -340,6 +340,20 @@ const parseYmd = s => { const [y,m,d] = s.split("-").map(Number); return new Dat
 const normId = v => { v = String(v||"").trim(); return /^\d+$/.test(v) ? v.padStart(4,"0") : v; };
 const findMember = id => ROSTER.find(m => m.id === normId(id));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+// ----- Church time (records use Philippine time, not the phone's time zone) -----
+function churchNow(d = new Date()){
+  const parts = new Intl.DateTimeFormat("en-CA", {timeZone: CONFIG.TIMEZONE, year:"numeric", month:"2-digit", day:"2-digit",
+    weekday:"short", hour:"2-digit", minute:"2-digit", hourCycle:"h23"}).formatToParts(d);
+  const g = t => parts.find(p => p.type===t).value;
+  return {
+    date: `${g("year")}-${g("month")}-${g("day")}`,
+    dow: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday")),
+    minutes: Number(g("hour"))*60 + Number(g("minute"))
+  };
+}
+const normName = s => String(s||"").toLowerCase().replace(/\s+/g," ").trim();
+const dupKey = r => r.type==="Member" ? `M|${r.date}|${r.churchId}` : `G|${r.date}|${normName(r.name)}`;
 
 // Storage with graceful fallback (some previews block localStorage)
 const memStore = {};
@@ -388,7 +402,7 @@ async function pullRemote(){
 async function saveRecords(list){
   const added = [], skipped = [];
   for (const r of list){
-    const dup = r.type === "Member" && records.some(x => x.type==="Member" && x.date===r.date && x.churchId===r.churchId);
+    const dup = records.some(x => dupKey(x)===dupKey(r)) || added.some(x => dupKey(x)===dupKey(r));
     if (dup) skipped.push(r); else added.push(r);
   }
   if (CONFIG.SCRIPT_URL && added.length){
@@ -397,7 +411,7 @@ async function saveRecords(list){
       if (res && Array.isArray(res.skipped)){
         // server found duplicates from other devices
         for (const s of res.skipped){
-          const i = added.findIndex(a => a.type==="Member" && a.date===s.date && a.churchId===s.churchId);
+          const i = added.findIndex(a => dupKey(a)===dupKey(s));
           if (i>-1) skipped.push(...added.splice(i,1));
         }
       }
@@ -480,7 +494,7 @@ $("#btnMemSubmit").onclick = async () => {
 
   const now = new Date();
   const mk = (m, by="") => ({
-    ts: now.toISOString(), date: ymd(now), type:"Member", churchId:m.id, name:m.name, age:m.age,
+    ts: now.toISOString(), date: churchNow().date, type:"Member", churchId:m.id, name:m.name, age:m.age,
     category: categoryFromAge(m.age), ageGroup: categoryFromAge(m.age), broughtBy: by,
     birthdate:"", address:"", howKnow:"", contactPerson:"", prayer:""
   });
@@ -521,7 +535,7 @@ $("#btnGuestSubmit").onclick = async () => {
   const now = new Date();
   const name = [first, mid, last].filter(Boolean).join(" ");
   const rec = {
-    ts: now.toISOString(), date: ymd(now), type:"Guest", churchId:"", name, age:Number(age),
+    ts: now.toISOString(), date: churchNow().date, type:"Guest", churchId:"", name, age:Number(age),
     category:"Guest", ageGroup: categoryFromAge(age), broughtBy:"",
     birthdate:birth, address:$("#gAddr").value.trim(), howKnow:$("#gHow").value.trim(),
     contactPerson:$("#gContact").value.trim(), prayer:$("#gPray").value.trim()
@@ -566,7 +580,7 @@ $("#btnLock").onclick = () => { unlocked = false; show("home"); };
 $("#btnRefresh").onclick = async () => { await pullRemote(); renderAdmin(); };
 
 async function enterAdmin(){
-  $("#refDate").value = ymd(new Date());
+  $("#refDate").value = churchNow().date;
   show("admin");
   if (CONFIG.SCRIPT_URL) await pullRemote();
   renderAdmin();
